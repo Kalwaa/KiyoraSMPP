@@ -1,26 +1,20 @@
 /* =========================================================
-   KIYORASMP — SCRIPT.JS
+   KIYORASMP
    ========================================================= */
 
 const API =
     "https://kiyorasmpp.httpskiyorasmppkiyorasmpworkersdev.workers.dev";
 
-const SERVER_IP =
-    "kiyorasmp.minecraft.how";
-
 
 /* =========================================================
-   ELEMENTS DU SITE
+   ELEMENTS
    ========================================================= */
 
 const statusElement =
     document.getElementById("status");
 
-const playersElement =
-    document.getElementById("players");
-
-const openButton =
-    document.getElementById("openButton");
+const startButton =
+    document.getElementById("startButton");
 
 const messageElement =
     document.getElementById("message");
@@ -30,76 +24,19 @@ let busy = false;
 
 
 /* =========================================================
-   MINI TEST VISUEL
+   TEST VISUEL
    ========================================================= */
 
-const testBox = document.createElement("div");
+function showMessage(text, type = "") {
 
-testBox.id = "workerTest";
+    if (!messageElement) {
+        return;
+    }
 
-testBox.innerHTML = `
-    <div style="
-        margin-top:20px;
-        padding:12px 15px;
-        border:1px solid #1f3b35;
-        border-radius:10px;
-        background:#08110f;
-        font-family:Arial,sans-serif;
-        font-size:13px;
-        text-align:left;
-    ">
-        <div id="workerTestTitle"
-             style="font-weight:bold;margin-bottom:6px;">
-            🔄 Test du Worker...
-        </div>
+    messageElement.textContent = text;
 
-        <div id="workerTestStatus"
-             style="opacity:.75;">
-            Connexion en cours...
-        </div>
-
-        <pre id="workerTestData"
-             style="
-                margin-top:8px;
-                white-space:pre-wrap;
-                word-break:break-word;
-                font-size:11px;
-                opacity:.65;
-             "></pre>
-    </div>
-`;
-
-document.body.appendChild(testBox);
-
-
-const workerTestTitle =
-    document.getElementById("workerTestTitle");
-
-const workerTestStatus =
-    document.getElementById("workerTestStatus");
-
-const workerTestData =
-    document.getElementById("workerTestData");
-
-
-/* =========================================================
-   AFFICHAGE DU TEST
-   ========================================================= */
-
-function testMessage(
-    title,
-    status,
-    data = ""
-) {
-
-    workerTestTitle.textContent =
-        title;
-
-    workerTestStatus.textContent =
-        status;
-
-    workerTestData.textContent =
-        data;
+    messageElement.className =
+        "message " + type;
 }
 
 
@@ -111,19 +48,6 @@ async function getStatus() {
 
     try {
 
-        testMessage(
-            "🔄 Test du Worker...",
-            "Connexion à l'API..."
-        );
-
-
-        /*
-         * IMPORTANT :
-         *
-         * On appelle directement /
-         * et PAS /status.
-         */
-
         const response =
             await fetch(API, {
                 method: "GET",
@@ -131,80 +55,53 @@ async function getStatus() {
             });
 
 
-        const rawText =
-            await response.text();
+        const data =
+            await response.json();
 
 
         console.log(
-            "Réponse brute du Worker :",
-            rawText
-        );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-        }
-
-
-        let data;
-
-        try {
-
-            data =
-                JSON.parse(rawText);
-
-        } catch {
-
-            throw new Error(
-                "Le Worker n'a pas renvoyé du JSON."
-            );
-        }
-
-
-        console.log(
-            "Données Worker :",
+            "Réponse Worker :",
             data
         );
 
 
-        if (!data.success) {
+        if (!response.ok ||
+            !data.success) {
 
             throw new Error(
                 data.error ||
-                "Le Worker a renvoyé une erreur."
+                "Erreur du Worker."
             );
         }
 
 
-        /* =================================================
-           TEST VISUEL RÉUSSI
-           ================================================= */
-
-        testMessage(
-            "🟢 Worker connecté",
-            "Réponse reçue correctement.",
-            JSON.stringify(
-                data,
-                null,
-                2
-            )
-        );
-
-
-        /* =================================================
-           STATUT
-           ================================================= */
+        /* =========================
+           SERVEUR EN LIGNE
+        ========================= */
 
         if (data.online === true) {
 
             statusElement.textContent =
-                "● Serveur en ligne";
+                `● Serveur en ligne — ${data.players ?? 0}/${data.maxPlayers ?? 20}`;
 
             statusElement.style.color =
                 "#39e49a";
+
+
+            /*
+             * Le serveur est déjà ouvert :
+             * on n'a pas besoin de l'ouvrir.
+             */
+
+            if (startButton) {
+
+                startButton.disabled =
+                    true;
+
+                startButton.textContent =
+                    "✓ SERVEUR EN LIGNE";
+            }
+
 
         } else {
 
@@ -213,29 +110,24 @@ async function getStatus() {
 
             statusElement.style.color =
                 "#ff6070";
+
+
+            if (startButton) {
+
+                startButton.disabled =
+                    false;
+
+                startButton.textContent =
+                    "▶  DÉMARRER LE SERVEUR";
+            }
         }
-
-
-        /* =================================================
-           JOUEURS
-           ================================================= */
-
-        playersElement.textContent =
-            `${data.players ?? 0} / ${data.maxPlayers ?? 20}`;
 
 
     } catch (error) {
 
         console.error(
-            "Erreur Worker :",
+            "Erreur statut :",
             error
-        );
-
-
-        testMessage(
-            "🔴 Worker inaccessible",
-            error.message,
-            "URL utilisée :\n" + API
         );
 
 
@@ -245,17 +137,24 @@ async function getStatus() {
         statusElement.style.color =
             "#ff6070";
 
-        playersElement.textContent =
-            "-- / --";
+
+        if (startButton) {
+
+            startButton.disabled =
+                false;
+
+            startButton.textContent =
+                "▶  DÉMARRER LE SERVEUR";
+        }
     }
 }
 
 
 /* =========================================================
-   OUVRIR LE SERVEUR
+   DEMARRER LE SERVEUR
    ========================================================= */
 
-async function openServer() {
+async function startServer() {
 
     if (busy) {
         return;
@@ -265,16 +164,19 @@ async function openServer() {
     busy = true;
 
 
-    if (openButton) {
-        openButton.disabled = true;
+    if (startButton) {
+
+        startButton.disabled =
+            true;
+
+        startButton.textContent =
+            "⏳ OUVERTURE...";
     }
 
 
-    if (messageElement) {
-
-        messageElement.textContent =
-            "⏳ Ouverture du serveur...";
-    }
+    showMessage(
+        "⏳ Ouverture du serveur..."
+    );
 
 
     try {
@@ -297,29 +199,14 @@ async function openServer() {
             );
 
 
-        const rawText =
-            await response.text();
+        const data =
+            await response.json();
 
 
         console.log(
-            "Réponse ouverture :",
-            rawText
+            "Réponse démarrage :",
+            data
         );
-
-
-        let data;
-
-        try {
-
-            data =
-                JSON.parse(rawText);
-
-        } catch {
-
-            throw new Error(
-                "Réponse invalide du Worker."
-            );
-        }
 
 
         if (!response.ok ||
@@ -327,20 +214,26 @@ async function openServer() {
 
             throw new Error(
                 data.error ||
-                "Le serveur a refusé l'ouverture."
+                "MineStrator a refusé l'ouverture."
             );
         }
 
 
-        if (messageElement) {
+        showMessage(
+            "✅ Ouverture du serveur demandée !"
+        );
 
-            messageElement.textContent =
-                "✅ Ouverture du serveur demandée !";
+
+        if (startButton) {
+
+            startButton.textContent =
+                "⏳ DÉMARRAGE...";
         }
 
 
         /*
-         * Vérifications après le démarrage.
+         * MineStrator prend quelques secondes
+         * pour changer le statut.
          */
 
         setTimeout(
@@ -362,15 +255,23 @@ async function openServer() {
     } catch (error) {
 
         console.error(
-            "Erreur ouverture :",
+            "Erreur démarrage :",
             error
         );
 
 
-        if (messageElement) {
+        showMessage(
+            "❌ " + error.message
+        );
 
-            messageElement.textContent =
-                "❌ " + error.message;
+
+        if (startButton) {
+
+            startButton.disabled =
+                false;
+
+            startButton.textContent =
+                "▶  DÉMARRER LE SERVEUR";
         }
 
 
@@ -380,82 +281,31 @@ async function openServer() {
 
             busy = false;
 
-            if (openButton) {
-                openButton.disabled = false;
-            }
-
         }, 2000);
     }
 }
 
 
 /* =========================================================
-   BOUTON OUVRIR
+   BOUTON
    ========================================================= */
 
-if (openButton) {
+if (startButton) {
 
-    openButton.addEventListener(
-        "click",
-        openServer
-    );
-
+    startButton.onclick =
+        startServer;
 }
 
 
 /* =========================================================
-   COPIER L'IP
-   ========================================================= */
-
-async function copyIP() {
-
-    try {
-
-        await navigator.clipboard.writeText(
-            SERVER_IP
-        );
-
-
-        const toast =
-            document.getElementById("toast");
-
-
-        if (toast) {
-
-            toast.classList.add(
-                "show"
-            );
-
-
-            setTimeout(() => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            }, 1800);
-
-        }
-
-    } catch {
-
-        alert(
-            "IP du serveur : " +
-            SERVER_IP
-        );
-    }
-}
-
-
-/* =========================================================
-   PREMIER TEST
+   INITIALISATION
    ========================================================= */
 
 getStatus();
 
 
 /* =========================================================
-   ACTUALISATION
+   ACTUALISATION AUTOMATIQUE
    ========================================================= */
 
 setInterval(
