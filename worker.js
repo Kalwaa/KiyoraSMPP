@@ -6,7 +6,8 @@ export default {
     const cors = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Cache-Control": "no-store"
     };
 
     // =========================
@@ -23,13 +24,13 @@ export default {
     try {
 
       // =========================
-      // VERIFICATION DE LA CLE
+      // CLE API
       // =========================
 
       if (!env.MINESTRATOR_API_KEY) {
         return json({
           success: false,
-          error: "MINESTRATOR_API_KEY manquante dans Cloudflare."
+          error: "Configuration serveur manquante."
         }, cors, 500);
       }
 
@@ -40,11 +41,11 @@ export default {
       const profileResponse = await fetch(
         "https://mine.sttr.io/user/profile",
         {
-          method: "GET",
           headers: {
             "Authorization":
               `Bearer ${env.MINESTRATOR_API_KEY}`,
-            "Accept": "application/json"
+            "Accept":
+              "application/json"
           }
         }
       );
@@ -55,11 +56,13 @@ export default {
       if (!profileResponse.ok) {
         return json({
           success: false,
-          error: "Impossible de récupérer le profil MineStrator.",
-          httpStatus: profileResponse.status,
-          details: profileData
-        }, cors, profileResponse.status);
+          error: "Impossible de contacter MineStrator."
+        }, cors, 502);
       }
+
+      // =========================
+      // RECUPERATION ID UTILISATEUR
+      // =========================
 
       const user =
         profileData?.api?.data?.user ||
@@ -67,28 +70,29 @@ export default {
         profileData?.data?.user ||
         profileData?.user;
 
-      const userId = user?.id;
+      const userId =
+        user?.id ||
+        user?.datas?.id;
 
       if (!userId) {
         return json({
           success: false,
-          error: "ID utilisateur MineStrator introuvable.",
-          profile: profileData
+          error: "Configuration du serveur introuvable."
         }, cors, 500);
       }
 
       // =========================
-      // LISTE DES SERVEURS
+      // SERVEURS DU COMPTE
       // =========================
 
       const serversResponse = await fetch(
         `https://mine.sttr.io/user/${userId}/servers`,
         {
-          method: "GET",
           headers: {
             "Authorization":
               `Bearer ${env.MINESTRATOR_API_KEY}`,
-            "Accept": "application/json"
+            "Accept":
+              "application/json"
           }
         }
       );
@@ -99,10 +103,8 @@ export default {
       if (!serversResponse.ok) {
         return json({
           success: false,
-          error: "Impossible de récupérer les serveurs MineStrator.",
-          httpStatus: serversResponse.status,
-          details: serversData
-        }, cors, serversResponse.status);
+          error: "Impossible de récupérer le serveur."
+        }, cors, 502);
       }
 
       const servers =
@@ -113,7 +115,7 @@ export default {
         [];
 
       // =========================
-      // RECHERCHE KIYORASMP
+      // KIYORASMP
       // =========================
 
       const server = servers.find(
@@ -127,17 +129,14 @@ export default {
       if (!server) {
         return json({
           success: false,
-          error: `Serveur "${SERVER_NAME}" introuvable.`,
-          servers: servers.map(s => ({
-            id: s.id,
-            name: s.name
-          }))
+          error: "Serveur KiyoraSMP introuvable."
         }, cors, 404);
       }
 
       const serverId = server.id;
 
-      const url = new URL(request.url);
+      const url =
+        new URL(request.url);
 
       // ==================================================
       // STATUS
@@ -156,11 +155,11 @@ export default {
         const liveResponse = await fetch(
           `https://mine.sttr.io/server/${serverId}/live`,
           {
-            method: "GET",
             headers: {
               "Authorization":
                 `Bearer ${env.MINESTRATOR_API_KEY}`,
-              "Accept": "application/json"
+              "Accept":
+                "application/json"
             }
           }
         );
@@ -171,10 +170,8 @@ export default {
         if (!liveResponse.ok) {
           return json({
             success: false,
-            error: "Impossible de récupérer le statut du serveur.",
-            httpStatus: liveResponse.status,
-            details: liveData
-          }, cors, liveResponse.status);
+            error: "Impossible de récupérer le statut."
+          }, cors, 502);
         }
 
         const live =
@@ -192,33 +189,32 @@ export default {
 
         const players =
           live?.stats?.players?.current ??
-          live?.players?.current ??
-          live?.players?.online ??
-          live?.players ??
           0;
 
         const maxPlayers =
           live?.stats?.players?.limit ??
-          live?.players?.limit ??
-          live?.players?.max ??
           0;
+
+        // =========================
+        // SEULEMENT INFOS SERVEUR
+        // =========================
 
         return json({
           success: true,
-          serverId: serverId,
-          serverName: server.name,
+          server: "KiyoraSMP",
           online:
             state === "online" ||
             state === "running",
-          state: state,
-          players: Number(players) || 0,
-          maxPlayers: Number(maxPlayers) || 0
+          players:
+            Number(players) || 0,
+          maxPlayers:
+            Number(maxPlayers) || 0
         }, cors);
       }
 
       // ==================================================
       // POWER
-      // SEUL START EST AUTORISE
+      // SEULEMENT START
       // ==================================================
 
       if (
@@ -229,39 +225,39 @@ export default {
         let body;
 
         try {
-          body = await request.json();
+          body =
+            await request.json();
         } catch {
           return json({
             success: false,
-            error: "JSON invalide."
+            error: "Requête invalide."
           }, cors, 400);
         }
 
-        // ================================================
-        // SECURITE :
-        // ON REFUSE TOUT SAUF START
-        // ================================================
+        // =========================
+        // INTERDIT SAUF START
+        // =========================
 
         if (body?.action !== "start") {
           return json({
             success: false,
             error:
-              "Action interdite. Ce Worker permet uniquement de démarrer le serveur."
+              "Action interdite."
           }, cors, 403);
         }
 
-        // ================================================
-        // VERIFICATION DU STATUT AVANT START
-        // ================================================
+        // =========================
+        // VERIFICATION STATUT
+        // =========================
 
         const liveResponse = await fetch(
           `https://mine.sttr.io/server/${serverId}/live`,
           {
-            method: "GET",
             headers: {
               "Authorization":
                 `Bearer ${env.MINESTRATOR_API_KEY}`,
-              "Accept": "application/json"
+              "Accept":
+                "application/json"
             }
           }
         );
@@ -284,29 +280,30 @@ export default {
               ""
             ).toLowerCase();
 
-          // Déjà allumé
           if (
             state === "online" ||
             state === "running"
           ) {
+
             return json({
               success: true,
-              alreadyOnline: true,
-              serverId: serverId,
-              action: "start",
-              message: "Le serveur est déjà en ligne."
+              server: "KiyoraSMP",
+              online: true,
+              message:
+                "Le serveur est déjà ouvert."
             }, cors);
           }
         }
 
-        // ================================================
-        // DEMARRAGE MINESTRATOR
-        // ================================================
+        // =========================
+        // DEMARRAGE
+        // =========================
 
         const powerResponse = await fetch(
           `https://mine.sttr.io/server/${serverId}/poweraction`,
           {
             method: "PUT",
+
             headers: {
               "Authorization":
                 `Bearer ${env.MINESTRATOR_API_KEY}`,
@@ -315,6 +312,7 @@ export default {
               "Accept":
                 "application/json"
             },
+
             body: JSON.stringify({
               poweraction: "start"
             })
@@ -325,51 +323,32 @@ export default {
           await powerResponse.json();
 
         if (!powerResponse.ok) {
+
+          // NE RENVOIE PAS LA REPONSE
+          // BRUTE DE MINESTRATOR
+
           return json({
             success: false,
             error:
-              "MineStrator a refusé le démarrage.",
-            httpStatus:
-              powerResponse.status,
-            serverId:
-              serverId,
-            details:
-              powerData
+              "Impossible de démarrer KiyoraSMP."
           }, cors, powerResponse.status);
         }
 
+        // =========================
+        // REPONSE PUBLIQUE
+        // =========================
+
         return json({
           success: true,
-          serverId: serverId,
+          server: "KiyoraSMP",
           action: "start",
           message:
-            "Démarrage du serveur demandé.",
-          details:
-            powerData
+            "Démarrage de KiyoraSMP demandé."
         }, cors);
       }
 
       // ==================================================
-      // SERVEURS
-      // GET /servers
-      // ==================================================
-
-      if (
-        url.pathname === "/servers" &&
-        request.method === "GET"
-      ) {
-
-        return json({
-          success: true,
-          servers: servers.map(s => ({
-            id: s.id,
-            name: s.name
-          }))
-        }, cors);
-      }
-
-      // ==================================================
-      // TOUT LE RESTE
+      // TOUT LE RESTE EST BLOQUE
       // ==================================================
 
       return json({
@@ -379,11 +358,14 @@ export default {
 
     } catch (error) {
 
+      // =========================
+      // AUCUNE DONNEE INTERNE
+      // =========================
+
       return json({
         success: false,
         error:
-          error?.message ||
-          "Erreur inconnue du Worker."
+          "Erreur interne du serveur."
       }, cors, 500);
     }
   }
@@ -391,15 +373,19 @@ export default {
 
 
 // ======================================================
-// JSON RESPONSE
+// REPONSE JSON
 // ======================================================
 
-function json(data, cors, status = 200) {
+function json(
+  data,
+  cors,
+  status = 200
+) {
 
   return new Response(
-    JSON.stringify(data, null, 2),
+    JSON.stringify(data),
     {
-      status: status,
+      status,
       headers: {
         ...cors,
         "Content-Type":
