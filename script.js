@@ -1,9 +1,17 @@
+/* =========================================================
+   KIYORASMP — SCRIPT.JS
+   ========================================================= */
+
 const API =
     "https://kiyorasmpp.httpskiyorasmppkiyorasmpworkersdev.workers.dev";
 
 const SERVER_IP =
     "kiyorasmp.minecraft.how";
 
+
+/* =========================================================
+   ELEMENTS DU SITE
+   ========================================================= */
 
 const statusElement =
     document.getElementById("status");
@@ -17,40 +25,178 @@ const openButton =
 const messageElement =
     document.getElementById("message");
 
+
 let busy = false;
 
 
-/* =========================
+/* =========================================================
+   MINI TEST VISUEL
+   ========================================================= */
+
+const testBox = document.createElement("div");
+
+testBox.id = "workerTest";
+
+testBox.innerHTML = `
+    <div style="
+        margin-top:20px;
+        padding:12px 15px;
+        border:1px solid #1f3b35;
+        border-radius:10px;
+        background:#08110f;
+        font-family:Arial,sans-serif;
+        font-size:13px;
+        text-align:left;
+    ">
+        <div id="workerTestTitle"
+             style="font-weight:bold;margin-bottom:6px;">
+            🔄 Test du Worker...
+        </div>
+
+        <div id="workerTestStatus"
+             style="opacity:.75;">
+            Connexion en cours...
+        </div>
+
+        <pre id="workerTestData"
+             style="
+                margin-top:8px;
+                white-space:pre-wrap;
+                word-break:break-word;
+                font-size:11px;
+                opacity:.65;
+             "></pre>
+    </div>
+`;
+
+document.body.appendChild(testBox);
+
+
+const workerTestTitle =
+    document.getElementById("workerTestTitle");
+
+const workerTestStatus =
+    document.getElementById("workerTestStatus");
+
+const workerTestData =
+    document.getElementById("workerTestData");
+
+
+/* =========================================================
+   AFFICHAGE DU TEST
+   ========================================================= */
+
+function testMessage(
+    title,
+    status,
+    data = ""
+) {
+
+    workerTestTitle.textContent =
+        title;
+
+    workerTestStatus.textContent =
+        status;
+
+    workerTestData.textContent =
+        data;
+}
+
+
+/* =========================================================
    STATUT DU SERVEUR
-========================= */
+   ========================================================= */
 
 async function getStatus() {
 
     try {
 
-        // On utilise directement /
-        // car c'est l'URL que ton Worker
-        // confirme fonctionner.
+        testMessage(
+            "🔄 Test du Worker...",
+            "Connexion à l'API..."
+        );
 
-        const response = await fetch(API, {
-            method: "GET",
-            cache: "no-store"
-        });
 
-        const data = await response.json();
+        /*
+         * IMPORTANT :
+         *
+         * On appelle directement /
+         * et PAS /status.
+         */
 
-        console.log("STATUT WORKER :", data);
+        const response =
+            await fetch(API, {
+                method: "GET",
+                cache: "no-store"
+            });
 
-        if (!response.ok || !data.success) {
+
+        const rawText =
+            await response.text();
+
+
+        console.log(
+            "Réponse brute du Worker :",
+            rawText
+        );
+
+
+        if (!response.ok) {
+
             throw new Error(
-                data.error || "Statut indisponible."
+                `HTTP ${response.status}`
             );
         }
 
 
-        /* =========================
-           SERVEUR EN LIGNE
-        ========================= */
+        let data;
+
+        try {
+
+            data =
+                JSON.parse(rawText);
+
+        } catch {
+
+            throw new Error(
+                "Le Worker n'a pas renvoyé du JSON."
+            );
+        }
+
+
+        console.log(
+            "Données Worker :",
+            data
+        );
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.error ||
+                "Le Worker a renvoyé une erreur."
+            );
+        }
+
+
+        /* =================================================
+           TEST VISUEL RÉUSSI
+           ================================================= */
+
+        testMessage(
+            "🟢 Worker connecté",
+            "Réponse reçue correctement.",
+            JSON.stringify(
+                data,
+                null,
+                2
+            )
+        );
+
+
+        /* =================================================
+           STATUT
+           ================================================= */
 
         if (data.online === true) {
 
@@ -70,9 +216,9 @@ async function getStatus() {
         }
 
 
-        /* =========================
+        /* =================================================
            JOUEURS
-        ========================= */
+           ================================================= */
 
         playersElement.textContent =
             `${data.players ?? 0} / ${data.maxPlayers ?? 20}`;
@@ -81,9 +227,17 @@ async function getStatus() {
     } catch (error) {
 
         console.error(
-            "Erreur statut :",
+            "Erreur Worker :",
             error
         );
+
+
+        testMessage(
+            "🔴 Worker inaccessible",
+            error.message,
+            "URL utilisée :\n" + API
+        );
+
 
         statusElement.textContent =
             "● Indisponible";
@@ -97,9 +251,9 @@ async function getStatus() {
 }
 
 
-/* =========================
+/* =========================================================
    OUVRIR LE SERVEUR
-========================= */
+   ========================================================= */
 
 async function openServer() {
 
@@ -107,13 +261,17 @@ async function openServer() {
         return;
     }
 
+
     busy = true;
+
 
     if (openButton) {
         openButton.disabled = true;
     }
 
+
     if (messageElement) {
+
         messageElement.textContent =
             "⏳ Ouverture du serveur...";
     }
@@ -121,57 +279,84 @@ async function openServer() {
 
     try {
 
-        const response = await fetch(
-            API + "/power",
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                API + "/power",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body: JSON.stringify({
-                    action: "start"
-                })
-            }
-        );
+                    body: JSON.stringify({
+                        action: "start"
+                    })
+                }
+            );
 
 
-        const data =
-            await response.json();
+        const rawText =
+            await response.text();
 
 
         console.log(
-            "REPONSE OUVERTURE :",
-            data
+            "Réponse ouverture :",
+            rawText
         );
 
 
-        if (!response.ok || !data.success) {
+        let data;
+
+        try {
+
+            data =
+                JSON.parse(rawText);
+
+        } catch {
+
+            throw new Error(
+                "Réponse invalide du Worker."
+            );
+        }
+
+
+        if (!response.ok ||
+            !data.success) {
 
             throw new Error(
                 data.error ||
-                "Impossible d'ouvrir le serveur."
+                "Le serveur a refusé l'ouverture."
             );
         }
 
 
         if (messageElement) {
+
             messageElement.textContent =
                 "✅ Ouverture du serveur demandée !";
         }
 
 
         /*
-         * On vérifie plusieurs fois,
-         * car MineStrator peut prendre
-         * quelques secondes.
+         * Vérifications après le démarrage.
          */
 
-        setTimeout(getStatus, 2000);
-        setTimeout(getStatus, 5000);
-        setTimeout(getStatus, 10000);
+        setTimeout(
+            getStatus,
+            2000
+        );
+
+        setTimeout(
+            getStatus,
+            5000
+        );
+
+        setTimeout(
+            getStatus,
+            10000
+        );
 
 
     } catch (error) {
@@ -181,10 +366,13 @@ async function openServer() {
             error
         );
 
+
         if (messageElement) {
+
             messageElement.textContent =
                 "❌ " + error.message;
         }
+
 
     } finally {
 
@@ -201,9 +389,23 @@ async function openServer() {
 }
 
 
-/* =========================
+/* =========================================================
+   BOUTON OUVRIR
+   ========================================================= */
+
+if (openButton) {
+
+    openButton.addEventListener(
+        "click",
+        openServer
+    );
+
+}
+
+
+/* =========================================================
    COPIER L'IP
-========================= */
+   ========================================================= */
 
 async function copyIP() {
 
@@ -220,15 +422,20 @@ async function copyIP() {
 
         if (toast) {
 
-            toast.classList.add("show");
+            toast.classList.add(
+                "show"
+            );
+
 
             setTimeout(() => {
 
-                toast.classList.remove("show");
+                toast.classList.remove(
+                    "show"
+                );
 
             }, 1800);
-        }
 
+        }
 
     } catch {
 
@@ -240,30 +447,16 @@ async function copyIP() {
 }
 
 
-/* =========================
-   BOUTON OUVRIR
-========================= */
-
-if (openButton) {
-
-    openButton.addEventListener(
-        "click",
-        openServer
-    );
-}
-
-
-/* =========================
-   INITIALISATION
-========================= */
+/* =========================================================
+   PREMIER TEST
+   ========================================================= */
 
 getStatus();
 
 
-/*
- * Actualisation automatique
- * toutes les 10 secondes.
- */
+/* =========================================================
+   ACTUALISATION
+   ========================================================= */
 
 setInterval(
     getStatus,
