@@ -14,49 +14,45 @@ const playersElement =
 const openButton =
     document.getElementById("openButton");
 
-const restartButton =
-    document.getElementById("restartButton");
-
 const messageElement =
     document.getElementById("message");
-
 
 let busy = false;
 
 
 /* =========================
-   STATUS
+   STATUT DU SERVEUR
 ========================= */
 
 async function getStatus() {
 
     try {
 
-        const response =
-            await fetch(
-                API + "/status",
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
+        // On utilise directement /
+        // car c'est l'URL que ton Worker
+        // confirme fonctionner.
 
+        const response = await fetch(API, {
+            method: "GET",
+            cache: "no-store"
+        });
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
+        console.log("STATUT WORKER :", data);
 
-        if (!response.ok ||
-            !data.success) {
-
+        if (!response.ok || !data.success) {
             throw new Error(
-                data.error ||
-                "Impossible de récupérer le statut."
+                data.error || "Statut indisponible."
             );
         }
 
 
-        if (data.online) {
+        /* =========================
+           SERVEUR EN LIGNE
+        ========================= */
+
+        if (data.online === true) {
 
             statusElement.textContent =
                 "● Serveur en ligne";
@@ -74,13 +70,20 @@ async function getStatus() {
         }
 
 
+        /* =========================
+           JOUEURS
+        ========================= */
+
         playersElement.textContent =
-            `${data.players ?? 0} / ${data.maxPlayers ?? "--"}`;
+            `${data.players ?? 0} / ${data.maxPlayers ?? 20}`;
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur statut :",
+            error
+        );
 
         statusElement.textContent =
             "● Indisponible";
@@ -95,136 +98,93 @@ async function getStatus() {
 
 
 /* =========================
-   OUVRIR / REDÉMARRER
+   OUVRIR LE SERVEUR
 ========================= */
 
-async function powerServer(action) {
+async function openServer() {
 
     if (busy) {
         return;
     }
 
-
     busy = true;
 
-    openButton.disabled =
-        true;
+    if (openButton) {
+        openButton.disabled = true;
+    }
 
-    restartButton.disabled =
-        true;
-
-
-    if (action === "start") {
-
+    if (messageElement) {
         messageElement.textContent =
             "⏳ Ouverture du serveur...";
-
-    } else {
-
-        messageElement.textContent =
-            "⏳ Redémarrage du serveur...";
     }
 
 
     try {
 
-        const response =
-            await fetch(
-                API + "/power",
-                {
-                    method: "POST",
+        const response = await fetch(
+            API + "/power",
+            {
+                method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-                    body: JSON.stringify({
-                        action: action
-                    })
-                }
-            );
+                body: JSON.stringify({
+                    action: "start"
+                })
+            }
+        );
 
 
         const data =
             await response.json();
 
 
-        if (!response.ok ||
-            !data.success) {
-
-            /*
-             * Affiche la vraie erreur
-             * renvoyée par MineStrator.
-             */
-
-            let errorText =
-                data.error ||
-                "Action refusée.";
+        console.log(
+            "REPONSE OUVERTURE :",
+            data
+        );
 
 
-            if (data.httpStatus) {
-
-                errorText +=
-                    ` (${data.httpStatus})`;
-            }
-
-
-            if (data.details) {
-
-                console.error(
-                    "Réponse MineStrator :",
-                    data.details
-                );
-            }
-
+        if (!response.ok || !data.success) {
 
             throw new Error(
-                errorText
+                data.error ||
+                "Impossible d'ouvrir le serveur."
             );
         }
 
 
-        if (action === "start") {
-
+        if (messageElement) {
             messageElement.textContent =
-                "✅ Ouverture demandée !";
-
-        } else {
-
-            messageElement.textContent =
-                "✅ Redémarrage demandé !";
+                "✅ Ouverture du serveur demandée !";
         }
 
 
         /*
-         * MineStrator peut mettre
-         * quelques secondes à actualiser
-         * le statut.
+         * On vérifie plusieurs fois,
+         * car MineStrator peut prendre
+         * quelques secondes.
          */
 
-        setTimeout(
-            getStatus,
-            2000
-        );
-
-        setTimeout(
-            getStatus,
-            5000
-        );
-
-        setTimeout(
-            getStatus,
-            10000
-        );
+        setTimeout(getStatus, 2000);
+        setTimeout(getStatus, 5000);
+        setTimeout(getStatus, 10000);
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur ouverture :",
+            error
+        );
 
-        messageElement.textContent =
-            "❌ " + error.message;
+        if (messageElement) {
+            messageElement.textContent =
+                "❌ " + error.message;
+        }
 
     } finally {
 
@@ -232,19 +192,17 @@ async function powerServer(action) {
 
             busy = false;
 
-            openButton.disabled =
-                false;
+            if (openButton) {
+                openButton.disabled = false;
+            }
 
-            restartButton.disabled =
-                false;
-
-        }, 1500);
+        }, 2000);
     }
 }
 
 
 /* =========================
-   COPIER IP
+   COPIER L'IP
 ========================= */
 
 async function copyIP() {
@@ -260,18 +218,16 @@ async function copyIP() {
             document.getElementById("toast");
 
 
-        toast.classList.add(
-            "show"
-        );
+        if (toast) {
 
+            toast.classList.add("show");
 
-        setTimeout(() => {
+            setTimeout(() => {
 
-            toast.classList.remove(
-                "show"
-            );
+                toast.classList.remove("show");
 
-        }, 1800);
+            }, 1800);
+        }
 
 
     } catch {
@@ -285,6 +241,19 @@ async function copyIP() {
 
 
 /* =========================
+   BOUTON OUVRIR
+========================= */
+
+if (openButton) {
+
+    openButton.addEventListener(
+        "click",
+        openServer
+    );
+}
+
+
+/* =========================
    INITIALISATION
 ========================= */
 
@@ -292,7 +261,8 @@ getStatus();
 
 
 /*
- * Actualisation toutes les 10 secondes.
+ * Actualisation automatique
+ * toutes les 10 secondes.
  */
 
 setInterval(
