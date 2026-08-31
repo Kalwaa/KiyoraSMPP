@@ -1,183 +1,57 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>KiyoraSMP</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header>
+    <div class="container">
+
         <div class="logo">
             <div class="logo-box">K</div>
-
             <div>
-                <strong>KIYORA<span>SMP</span></strong>
+                <h2>KIYORA<span>SMP</span></h2>
                 <small>SERVEUR MINECRAFT</small>
             </div>
         </div>
 
-        <a
-            class="discord"
-            href="https://discord.gg/aSa3gxAUys"
-            target="_blank"
-        >
-            • Discord
-        </a>
-    </header>
+        <div class="server">
 
-
-    <main>
-
-        <div class="badge">
-            <span></span>
-            SERVEUR MINECRAFT
-        </div>
-
-        <h1>
-            Bienvenue sur
-            <strong>KiyoraSMP</strong>
-        </h1>
-
-        <p class="description">
-            Un SMP chill, français et sans prise de tête.
-            Rejoins-nous et construis ton aventure.
-        </p>
-
-
-        <section class="server-card">
-
-            <div class="card-top">
-
-                <div>
-                    <small>STATUT DU SERVEUR</small>
-
-                    <h2 id="status">
-                        Connexion...
-                    </h2>
-                </div>
-
-                <div class="version">
-                    • Minecraft 1.21.10
-                </div>
-
+            <div class="badge">
+                ● SERVEUR MINECRAFT
             </div>
 
+            <h1>KiyoraSMP</h1>
 
-            <div class="info-grid">
+            <p>
+                Le serveur Minecraft chill, français et sans prise de tête.
+            </p>
 
-                <div class="info">
-                    <div class="icon">👥</div>
-
-                    <div>
-                        <small>JOUEURS</small>
-                        <strong id="players">
-                            -- / --
-                        </strong>
-                    </div>
-                </div>
-
-
-                <div class="info">
-                    <div class="icon">🌐</div>
-
-                    <div>
-                        <small>ADRESSE DU SERVEUR</small>
-
-                        <strong>
-                            kiyorasmp.minecraft.how
-                        </strong>
-                    </div>
-
-                    <button
-                        class="copy"
-                        onclick="copyIP()"
-                    >
-                        ⧉
-                    </button>
-                </div>
-
+            <div id="status" class="status">
+                ● Connexion...
             </div>
 
-
-            <div class="buttons">
-
-                <button
-                    id="openButton"
-                    class="open-button"
-                    onclick="powerServer('start')"
-                >
-                    ▶ &nbsp; OUVRIR
-                </button>
-
-                <button
-                    id="restartButton"
-                    class="restart-button"
-                    onclick="powerServer('restart')"
-                >
-                    ↻ &nbsp; REDÉMARRER
-                </button>
-
+            <div class="ip">
+                🌐
+                <strong>kiyorasmp.minecraft.how</strong>
             </div>
 
+            <button
+                id="startButton"
+                onclick="startServer()"
+            >
+                ▶ &nbsp; DÉMARRER LE SERVEUR
+            </button>
 
-            <div
-                id="message"
-                class="message"
-            ></div>
-
-        </section>
-
-
-        <div class="features">
-
-            <div>
-                ⚔
-                <strong>SURVIE</strong>
-                <small>Construis ton aventure</small>
-            </div>
-
-            <div>
-                ⚡
-                <strong>CHILL</strong>
-                <small>Pas de prise de tête</small>
-            </div>
-
-            <div>
-                ◆
-                <strong>COMMUNAUTÉ</strong>
-                <small>Rejoins les joueurs</small>
-            </div>
+            <div id="message"></div>
 
         </div>
 
-    </main>
-
-
-    <div
-        id="toast"
-        class="toast"
-    >
-        ✓ Adresse copiée !
     </div>
-
-
-    <footer>
-        © 2026 KalwaOG
-
-        <a
-            href="https://discord.gg/aSa3gxAUys"
-            target="_blank"
-        >
-            Discord
-        </a>
-    </footer>
-
 
     <script src="script.js"></script>
 
