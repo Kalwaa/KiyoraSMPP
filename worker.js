@@ -125,18 +125,17 @@ export default {
       const serverId = server.id;
 
       const url =
-        new URL(request.url);
+        const url = new URL(request.url);
 
       /*
        * =========================
        * STATUS
        * =========================
        */
-
-      if (
-        url.pathname === "/status" &&
-        request.method === "GET"
-      ) {
+        if (
+  (url.pathname === "/status" || url.pathname === "/") &&
+  request.method === "GET"
+) {
 
         const liveResponse = await fetch(
           `${API}/server/${serverId}/live`,
