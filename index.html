@@ -1,99 +1,185 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>KiyoraSMP</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>KiyoraSMP</h1>
+    <header>
+        <div class="logo">
+            <div class="logo-box">K</div>
 
-    <button id="openButton" onclick="powerServer('start')">
-        OUVRIR
-    </button>
+            <div>
+                <strong>KIYORA<span>SMP</span></strong>
+                <small>SERVEUR MINECRAFT</small>
+            </div>
+        </div>
 
-    <button id="restartButton" onclick="powerServer('restart')">
-        REDÉMARRER
-    </button>
+        <a
+            class="discord"
+            href="https://discord.gg/aSa3gxAUys"
+            target="_blank"
+        >
+            • Discord
+        </a>
+    </header>
 
-    <p id="message"></p>
 
-    <script>
-        const API =
-            "https://kiyorasmpp.httpskiyorasmppkiyorasmpworkersdev.workers.dev";
+    <main>
 
-        async function powerServer(action) {
+        <div class="badge">
+            <span></span>
+            SERVEUR MINECRAFT
+        </div>
 
-            const openButton =
-                document.getElementById("openButton");
+        <h1>
+            Bienvenue sur
+            <strong>KiyoraSMP</strong>
+        </h1>
 
-            const restartButton =
-                document.getElementById("restartButton");
+        <p class="description">
+            Un SMP chill, français et sans prise de tête.
+            Rejoins-nous et construis ton aventure.
+        </p>
 
-            const message =
-                document.getElementById("message");
 
-            openButton.disabled = true;
-            restartButton.disabled = true;
+        <section class="server-card">
 
-            if (action === "start") {
-                message.textContent =
-                    "Ouverture du serveur...";
-            } else {
-                message.textContent =
-                    "Redémarrage du serveur...";
-            }
+            <div class="card-top">
 
-            try {
+                <div>
+                    <small>STATUT DU SERVEUR</small>
 
-                const response =
-                    await fetch(API + "/power", {
-                        method: "POST",
+                    <h2 id="status">
+                        Connexion...
+                    </h2>
+                </div>
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+                <div class="version">
+                    • Minecraft 1.21.10
+                </div>
 
-                        body: JSON.stringify({
-                            action: action
-                        })
-                    });
+            </div>
 
-                const data =
-                    await response.json();
 
-                if (!response.ok || !data.success) {
-                    throw new Error(
-                        data.error || "Erreur"
-                    );
-                }
+            <div class="info-grid">
 
-                if (action === "start") {
+                <div class="info">
+                    <div class="icon">👥</div>
 
-                    message.textContent =
-                        "✅ Serveur ouvert !";
+                    <div>
+                        <small>JOUEURS</small>
+                        <strong id="players">
+                            -- / --
+                        </strong>
+                    </div>
+                </div>
 
-                } else {
 
-                    message.textContent =
-                        "✅ Serveur redémarré !";
+                <div class="info">
+                    <div class="icon">🌐</div>
 
-                }
+                    <div>
+                        <small>ADRESSE DU SERVEUR</small>
 
-            } catch (error) {
+                        <strong>
+                            kiyorasmp.minecraft.how
+                        </strong>
+                    </div>
 
-                message.textContent =
-                    "❌ " + error.message;
+                    <button
+                        class="copy"
+                        onclick="copyIP()"
+                    >
+                        ⧉
+                    </button>
+                </div>
 
-            } finally {
+            </div>
 
-                openButton.disabled = false;
-                restartButton.disabled = false;
-            }
-        }
-    </script>
+
+            <div class="buttons">
+
+                <button
+                    id="openButton"
+                    class="open-button"
+                    onclick="powerServer('start')"
+                >
+                    ▶ &nbsp; OUVRIR
+                </button>
+
+                <button
+                    id="restartButton"
+                    class="restart-button"
+                    onclick="powerServer('restart')"
+                >
+                    ↻ &nbsp; REDÉMARRER
+                </button>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message"
+            ></div>
+
+        </section>
+
+
+        <div class="features">
+
+            <div>
+                ⚔
+                <strong>SURVIE</strong>
+                <small>Construis ton aventure</small>
+            </div>
+
+            <div>
+                ⚡
+                <strong>CHILL</strong>
+                <small>Pas de prise de tête</small>
+            </div>
+
+            <div>
+                ◆
+                <strong>COMMUNAUTÉ</strong>
+                <small>Rejoins les joueurs</small>
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <div
+        id="toast"
+        class="toast"
+    >
+        ✓ Adresse copiée !
+    </div>
+
+
+    <footer>
+        © 2026 KalwaOG
+
+        <a
+            href="https://discord.gg/aSa3gxAUys"
+            target="_blank"
+        >
+            Discord
+        </a>
+    </footer>
+
+
+    <script src="script.js"></script>
 
 </body>
 </html>
