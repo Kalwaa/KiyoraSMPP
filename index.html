@@ -5,51 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>KiyoraSMP</title>
-    <meta name="description" content="Serveur Minecraft KiyoraSMP">
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="background"></div>
+    <header class="header">
 
-    <main class="page">
+        <div class="logo">
+            <div class="logo-box">K</div>
 
-        <header class="topbar">
-            <div class="brand">
-                <div class="brand-icon">K</div>
+            <div>
+                <div class="logo-title">
+                    KIYORA<span>SMP</span>
+                </div>
 
-                <div>
-                    <div class="brand-name">KIYORA<span>SMP</span></div>
-                    <div class="brand-subtitle">SERVEUR MINECRAFT</div>
+                <div class="logo-subtitle">
+                    SERVEUR MINECRAFT
                 </div>
             </div>
+        </div>
 
-            <a
-                class="discord-small"
-                href="https://discord.gg/dqaDbm4UQT"
-                target="_blank"
-                rel="noopener"
-            >
-                <span>●</span> Discord
-            </a>
-        </header>
+        <a
+            class="discord-button"
+            href="https://discord.gg/aSa3gxAUys"
+            target="_blank"
+        >
+            <span>•</span> Discord
+        </a>
 
+    </header>
+
+
+    <main class="container">
 
         <section class="hero">
 
-            <div class="hero-badge">
-                <span class="pulse"></span>
+            <div class="badge">
+                <span class="badge-dot"></span>
                 SERVEUR MINECRAFT
             </div>
 
             <h1>
-                Bienvenue sur<br>
-                <span>KiyoraSMP</span>
+                Bienvenue sur
+                <strong>KiyoraSMP</strong>
             </h1>
 
-            <p class="hero-text">
+            <p>
                 Un SMP chill, français et sans prise de tête.
                 Rejoins-nous et construis ton aventure.
             </p>
@@ -59,35 +62,50 @@
 
         <section class="server-card">
 
-            <div class="server-header">
+            <div class="server-top">
 
                 <div>
-                    <div class="server-label">STATUT DU SERVEUR</div>
+                    <div class="section-label">
+                        STATUT DU SERVEUR
+                    </div>
 
-                    <div id="status" class="status offline">
+                    <div
+                        id="status"
+                        class="status offline"
+                    >
                         <span class="status-dot"></span>
-                        Vérification...
+                        Connexion...
                     </div>
                 </div>
 
-                <div class="server-version">
-                    <span class="online-symbol">●</span>
+                <div class="version">
+                    <span></span>
                     Minecraft 1.21.10
                 </div>
 
             </div>
 
 
-            <div class="server-info">
+            <div class="separator"></div>
+
+
+            <div class="info-grid">
 
                 <div class="info-box">
 
-                    <div class="info-icon">👥</div>
+                    <div class="info-icon">
+                        👥
+                    </div>
 
                     <div>
-                        <div class="info-title">JOUEURS</div>
+                        <div class="info-label">
+                            JOUEURS
+                        </div>
 
-                        <div id="players" class="info-value">
+                        <div
+                            id="players"
+                            class="info-value"
+                        >
                             -- / --
                         </div>
                     </div>
@@ -97,12 +115,18 @@
 
                 <div class="info-box">
 
-                    <div class="info-icon">🌐</div>
+                    <div class="info-icon">
+                        🌐
+                    </div>
 
-                    <div class="ip-content">
-                        <div class="info-title">ADRESSE DU SERVEUR</div>
+                    <div class="address-content">
 
-                        <div class="ip-row">
+                        <div class="info-label">
+                            ADRESSE DU SERVEUR
+                        </div>
+
+                        <div class="address-row">
+
                             <div class="info-value">
                                 kiyorasmp.minecraft.how
                             </div>
@@ -110,11 +134,13 @@
                             <button
                                 class="copy-button"
                                 onclick="copyIP()"
-                                title="Copier l'IP"
+                                title="Copier l'adresse"
                             >
                                 ⧉
                             </button>
+
                         </div>
+
                     </div>
 
                 </div>
@@ -129,11 +155,15 @@
                     class="power-button start"
                     onclick="toggleServer()"
                 >
-                    <span id="powerIcon">▶</span>
+
+                    <span id="powerIcon">
+                        ▶
+                    </span>
 
                     <span id="powerText">
                         DÉMARRER LE SERVEUR
                     </span>
+
                 </button>
 
 
@@ -141,57 +171,59 @@
                     class="restart-button"
                     onclick="restartServer()"
                 >
-                    ↻
-                    REDÉMARRER
+                    ↻ REDÉMARRER
                 </button>
 
             </div>
 
 
-            <div id="message" class="message"></div>
+            <div
+                id="message"
+                class="message"
+            ></div>
 
         </section>
 
 
-        <section class="bottom-grid">
+        <section class="features">
 
-            <div class="mini-card">
+            <div class="feature">
 
-                <div class="mini-icon">⚔</div>
+                <div class="feature-icon">
+                    ⚔
+                </div>
 
                 <div>
-                    <div class="mini-title">SURVIE</div>
-                    <div class="mini-text">
-                        Construis ton aventure
-                    </div>
+                    <strong>SURVIE</strong>
+                    <span>Construis ton aventure</span>
                 </div>
 
             </div>
 
 
-            <div class="mini-card">
+            <div class="feature">
 
-                <div class="mini-icon">⚡</div>
+                <div class="feature-icon">
+                    ⚡
+                </div>
 
                 <div>
-                    <div class="mini-title">CHILL</div>
-                    <div class="mini-text">
-                        Pas de prise de tête
-                    </div>
+                    <strong>CHILL</strong>
+                    <span>Pas de prise de tête</span>
                 </div>
 
             </div>
 
 
-            <div class="mini-card">
+            <div class="feature">
 
-                <div class="mini-icon">◆</div>
+                <div class="feature-icon">
+                    ◆
+                </div>
 
                 <div>
-                    <div class="mini-title">COMMUNAUTÉ</div>
-                    <div class="mini-text">
-                        Rejoins les joueurs
-                    </div>
+                    <strong>COMMUNAUTÉ</strong>
+                    <span>Rejoins les joueurs</span>
                 </div>
 
             </div>
@@ -199,28 +231,30 @@
         </section>
 
 
-        <footer>
-
-            <div>
-                © 2026 KalwaQG
-            </div>
-
-            <a
-                href="https://discord.gg/dqaDbm4UQT"
-                target="_blank"
-                rel="noopener"
-            >
-                Discord
-            </a>
-
-        </footer>
+        <div
+            id="toast"
+            class="toast"
+        >
+            ✓ Adresse copiée !
+        </div>
 
     </main>
 
 
-    <div id="toast" class="toast">
-        IP copiée !
-    </div>
+    <footer class="footer">
+
+        <span>
+            © 2026 KalwaOG
+        </span>
+
+        <a
+            href="https://discord.gg/aSa3gxAUys"
+            target="_blank"
+        >
+            Discord
+        </a>
+
+    </footer>
 
 
     <script src="script.js"></script>
