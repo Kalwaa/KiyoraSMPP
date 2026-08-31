@@ -1,6 +1,6 @@
 const API = "https://kiyorasmpp.kiyorasmp.workers.dev";
 
-const SERVER_IP = "91.197.6.226:24368";
+const SERVER_IP = "kiyorasmp.minecraft.how";
 
 let serverOnline = false;
 let busy = false;
