@@ -1,0 +1,117 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        linear-gradient(rgba(5, 15, 20, .82), rgba(5, 15, 20, .95)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");
+    background-size: cover;
+    background-position: center;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 420px;
+    max-width: 90%;
+    padding: 30px;
+    text-align: center;
+
+    background: rgba(10, 20, 25, .90);
+    border: 1px solid rgba(0, 220, 180, .25);
+    border-radius: 18px;
+
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+h1 {
+    margin-top: 0;
+    color: #00d6a0;
+    font-size: 38px;
+}
+
+.support {
+    color: #bbb;
+    margin-bottom: 25px;
+}
+
+.support span {
+    color: #00d6a0;
+    background: rgba(0, 214, 160, .1);
+    padding: 7px 12px;
+    border-radius: 8px;
+}
+
+.status {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 15px;
+}
+
+.players {
+    color: #ccc;
+    margin-bottom: 25px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+button {
+    border: 0;
+    padding: 13px 18px;
+    border-radius: 9px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.04);
+}
+
+.start {
+    background: #2d9bf0;
+}
+
+.restart {
+    background: #e9a900;
+}
+
+.stop {
+    background: #ed5c68;
+}
+
+.ip {
+    margin: 25px 0;
+    padding: 14px;
+    background: rgba(255,255,255,.06);
+    border-radius: 10px;
+}
+
+.discord {
+    display: block;
+    padding: 13px;
+    background: #5865f2;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+#message {
+    min-height: 20px;
+    color: #aaa;
+    margin-bottom: 0;
+}
