@@ -1,21 +1,229 @@
-     <button onclick="power('stop')" class="stop">■ Arrêter</button>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KiyoraSMP</title>
+    <meta name="description" content="Serveur Minecraft KiyoraSMP">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="background"></div>
+
+    <main class="page">
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-icon">K</div>
+
+                <div>
+                    <div class="brand-name">KIYORA<span>SMP</span></div>
+                    <div class="brand-subtitle">SERVEUR MINECRAFT</div>
+                </div>
+            </div>
+
+            <a
+                class="discord-small"
+                href="https://discord.gg/dqaDbm4UQT"
+                target="_blank"
+                rel="noopener"
+            >
+                <span>●</span> Discord
+            </a>
+        </header>
+
+
+        <section class="hero">
+
+            <div class="hero-badge">
+                <span class="pulse"></span>
+                SERVEUR MINECRAFT
+            </div>
+
+            <h1>
+                Bienvenue sur<br>
+                <span>KiyoraSMP</span>
+            </h1>
+
+            <p class="hero-text">
+                Un SMP chill, français et sans prise de tête.
+                Rejoins-nous et construis ton aventure.
+            </p>
+
+        </section>
+
+
+        <section class="server-card">
+
+            <div class="server-header">
+
+                <div>
+                    <div class="server-label">STATUT DU SERVEUR</div>
+
+                    <div id="status" class="status offline">
+                        <span class="status-dot"></span>
+                        Vérification...
+                    </div>
+                </div>
+
+                <div class="server-version">
+                    <span class="online-symbol">●</span>
+                    Minecraft 1.21.10
+                </div>
+
+            </div>
+
+
+            <div class="server-info">
+
+                <div class="info-box">
+
+                    <div class="info-icon">👥</div>
+
+                    <div>
+                        <div class="info-title">JOUEURS</div>
+
+                        <div id="players" class="info-value">
+                            -- / --
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <div class="info-icon">🌐</div>
+
+                    <div class="ip-content">
+                        <div class="info-title">ADRESSE DU SERVEUR</div>
+
+                        <div class="ip-row">
+                            <div class="info-value">
+                                kiyorasmp.minecraft.how
+                            </div>
+
+                            <button
+                                class="copy-button"
+                                onclick="copyIP()"
+                                title="Copier l'IP"
+                            >
+                                ⧉
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    id="powerButton"
+                    class="power-button start"
+                    onclick="toggleServer()"
+                >
+                    <span id="powerIcon">▶</span>
+
+                    <span id="powerText">
+                        DÉMARRER LE SERVEUR
+                    </span>
+                </button>
+
+
+                <button
+                    class="restart-button"
+                    onclick="restartServer()"
+                >
+                    ↻
+                    REDÉMARRER
+                </button>
+
+            </div>
+
+
+            <div id="message" class="message"></div>
+
+        </section>
+
+
+        <section class="bottom-grid">
+
+            <div class="mini-card">
+
+                <div class="mini-icon">⚔</div>
+
+                <div>
+                    <div class="mini-title">SURVIE</div>
+                    <div class="mini-text">
+                        Construis ton aventure
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="mini-card">
+
+                <div class="mini-icon">⚡</div>
+
+                <div>
+                    <div class="mini-title">CHILL</div>
+                    <div class="mini-text">
+                        Pas de prise de tête
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="mini-card">
+
+                <div class="mini-icon">◆</div>
+
+                <div>
+                    <div class="mini-title">COMMUNAUTÉ</div>
+                    <div class="mini-text">
+                        Rejoins les joueurs
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <div>
+                © 2026 KalwaQG
+            </div>
+
+            <a
+                href="https://discord.gg/dqaDbm4UQT"
+                target="_blank"
+                rel="noopener"
+            >
+                Discord
+            </a>
+
+        </footer>
+
+    </main>
+
+
+    <div id="toast" class="toast">
+        IP copiée !
     </div>
 
-    <div class="ip">
-        🎮 <b>kiyorasmp.minecraft.how</b>
-    </div>
 
-    <a class="discord"
-       href="https://discord.gg/dqaDbm4UQT"
-       target="_blank">
-       💬 Rejoindre le Discord
-    </a>
-
-    <p id="message"></p>
-
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
