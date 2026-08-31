@@ -30,158 +30,156 @@ export default {
         "Authorization": `Bearer ${env.MINESTRATOR_API_KEY}`
       };
 
-      /*
-       * RÉCUPÉRATION DU COMPTE
-       */
+      /* =========================
+         PROFIL MINESTRATOR
+      ========================= */
 
-      const userResponse = await fetch(
-        `${API}/user`,
+      const profileResponse = await fetch(
+        `${API}/user/profile`,
         { headers }
       );
 
-      const userData = await userResponse.json();
+      const profileData = await profileResponse.json();
 
-      if (!userResponse.ok) {
+      if (!profileResponse.ok) {
         return json({
           success: false,
-          error: "MineStrator refuse la clé API.",
-          details: userData
-        }, cors, userResponse.status);
+          error: "Impossible de récupérer le profil MineStrator.",
+          details: profileData
+        }, cors, profileResponse.status);
       }
 
       const user =
-        userData?.api?.data?.user;
+        profileData?.api?.data?.user ||
+        profileData?.api?.user ||
+        profileData?.user;
 
       const userId =
+        user?.id ||
         user?.datas?.id;
 
       if (!userId) {
         return json({
           success: false,
-          error: "ID utilisateur introuvable dans la réponse MineStrator.",
-          details: userData
+          error: "ID utilisateur MineStrator introuvable.",
+          details: profileData
         }, cors, 500);
       }
 
-      /*
-       * RÉCUPÉRATION DES SERVEURS
-       */
+      /* =========================
+         SERVEURS
+      ========================= */
 
       const serversResponse = await fetch(
         `${API}/user/${userId}/servers`,
         { headers }
       );
 
-      const serversData =
-        await serversResponse.json();
+      const serversData = await serversResponse.json();
 
       if (!serversResponse.ok) {
         return json({
           success: false,
-          error: "Impossible de récupérer les serveurs.",
+          error: "Impossible de récupérer les serveurs MineStrator.",
           details: serversData
         }, cors, serversResponse.status);
       }
 
       const servers =
-        serversData?.api?.data?.servers || [];
+        serversData?.api?.data?.servers ||
+        serversData?.api?.servers ||
+        serversData?.servers ||
+        [];
 
-      /*
-       * CHERCHE KIYORASMP
-       */
+      const server = servers.find(s => {
+        const name = String(s?.name || "")
+          .trim()
+          .toLowerCase();
 
-      const server = servers.find(server => {
-
-        const name =
-          String(server.name || "")
-            .trim()
-            .toLowerCase();
-
-        const dns =
-          String(server.dns || "")
-            .trim()
-            .toLowerCase();
+        const dns = String(s?.dns || "")
+          .trim()
+          .toLowerCase();
 
         return (
           name === SERVER_NAME.toLowerCase() ||
           dns === "kiyorasmp.minecraft.how"
         );
-
       });
 
       if (!server) {
         return json({
           success: false,
           error: `Serveur "${SERVER_NAME}" introuvable.`,
-          servers: servers.map(server => ({
-            id: server.id,
-            name: server.name,
-            dns: server.dns,
-            ip: server.ip
+          servers: servers.map(s => ({
+            id: s?.id,
+            name: s?.name,
+            dns: s?.dns
           }))
         }, cors, 404);
       }
 
       const serverId = server.id;
+      const url = new URL(request.url);
 
-      const url =
-        const url = new URL(request.url);
+      /* =========================
+         STATUS
+      ========================= */
 
-      /*
-       * =========================
-       * STATUS
-       * =========================
-       */
-        if (
-  (url.pathname === "/status" || url.pathname === "/") &&
-  request.method === "GET"
-) {
+      if (
+        request.method === "GET" &&
+        (url.pathname === "/" ||
+         url.pathname === "/status")
+      ) {
 
         const liveResponse = await fetch(
           `${API}/server/${serverId}/live`,
-          { headers }
+          {
+            method: "GET",
+            headers
+          }
         );
 
-        const liveData =
-          await liveResponse.json();
+        const liveData = await liveResponse.json();
 
         if (!liveResponse.ok) {
           return json({
             success: false,
-            error: "MineStrator n'a pas pu donner le statut.",
+            error: "Impossible de récupérer le statut du serveur.",
             details: liveData
           }, cors, liveResponse.status);
         }
 
         const live =
-          liveData?.api?.data;
+          liveData?.api?.data ||
+          liveData?.api ||
+          liveData?.data ||
+          {};
 
         return json({
           success: true,
-          online:
-            live?.state === "online",
-
+          serverId,
+          online: live?.state === "online",
           players:
-            live?.stats?.players?.current ?? 0,
-
+            live?.stats?.players?.current ??
+            live?.players?.current ??
+            0,
           maxPlayers:
-            live?.stats?.players?.limit ?? 20
+            live?.stats?.players?.limit ??
+            live?.players?.limit ??
+            20
         }, cors);
       }
 
-      /*
-       * =========================
-       * POWER
-       * =========================
-       */
+      /* =========================
+         POWER
+      ========================= */
 
       if (
         url.pathname === "/power" &&
         request.method === "POST"
       ) {
 
-        const body =
-          await request.json();
+        const body = await request.json();
 
         const allowed = [
           "start",
@@ -189,34 +187,26 @@ export default {
           "restart"
         ];
 
-        if (
-          !body ||
-          !allowed.includes(body.action)
-        ) {
+        if (!body || !allowed.includes(body.action)) {
           return json({
             success: false,
             error: "Action invalide."
           }, cors, 400);
         }
 
-        const powerResponse =
-          await fetch(
-            `${API}/server/${serverId}/poweraction`,
-            {
-              method: "PUT",
-
-              headers: {
-                ...headers,
-                "Content-Type":
-                  "application/json"
-              },
-
-              body: JSON.stringify({
-                poweraction:
-                  body.action
-              })
-            }
-          );
+        const powerResponse = await fetch(
+          `${API}/server/${serverId}/poweraction`,
+          {
+            method: "PUT",
+            headers: {
+              ...headers,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              poweraction: body.action
+            })
+          }
+        );
 
         const powerData =
           await powerResponse.json();
@@ -224,24 +214,21 @@ export default {
         if (!powerResponse.ok) {
           return json({
             success: false,
-            error:
-              "MineStrator a refusé l'action.",
-            details:
-              powerData
+            error: "MineStrator a refusé l'action.",
+            details: powerData
           }, cors, powerResponse.status);
         }
 
         return json({
           success: true,
+          serverId,
           action: body.action
         }, cors);
       }
 
-      /*
-       * =========================
-       * TEST SERVEUR
-       * =========================
-       */
+      /* =========================
+         SERVERS DEBUG
+      ========================= */
 
       if (
         url.pathname === "/servers" &&
@@ -250,11 +237,11 @@ export default {
 
         return json({
           success: true,
-          servers: servers.map(server => ({
-            id: server.id,
-            name: server.name,
-            dns: server.dns,
-            ip: server.ip
+          servers: servers.map(s => ({
+            id: s?.id,
+            name: s?.name,
+            dns: s?.dns,
+            ip: s?.ip
           }))
         }, cors);
       }
@@ -268,25 +255,20 @@ export default {
 
       return json({
         success: false,
-        error:
-          error?.message ||
-          "Erreur inconnue."
+        error: error?.message || "Erreur inconnue."
       }, cors, 500);
     }
   }
 };
 
-
 function json(data, cors, status = 200) {
-
   return new Response(
     JSON.stringify(data, null, 2),
     {
       status,
       headers: {
         ...cors,
-        "Content-Type":
-          "application/json"
+        "Content-Type": "application/json"
       }
     }
   );
