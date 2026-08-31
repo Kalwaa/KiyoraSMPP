@@ -2,262 +2,98 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>KiyoraSMP</title>
-
-    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header class="header">
+    <h1>KiyoraSMP</h1>
 
-        <div class="logo">
-            <div class="logo-box">K</div>
+    <button id="openButton" onclick="powerServer('start')">
+        OUVRIR
+    </button>
 
-            <div>
-                <div class="logo-title">
-                    KIYORA<span>SMP</span>
-                </div>
+    <button id="restartButton" onclick="powerServer('restart')">
+        REDÉMARRER
+    </button>
 
-                <div class="logo-subtitle">
-                    SERVEUR MINECRAFT
-                </div>
-            </div>
-        </div>
+    <p id="message"></p>
 
-        <a
-            class="discord-button"
-            href="https://discord.gg/aSa3gxAUys"
-            target="_blank"
-        >
-            <span>•</span> Discord
-        </a>
+    <script>
+        const API =
+            "https://kiyorasmpp.httpskiyorasmppkiyorasmpworkersdev.workers.dev";
 
-    </header>
+        async function powerServer(action) {
 
+            const openButton =
+                document.getElementById("openButton");
 
-    <main class="container">
+            const restartButton =
+                document.getElementById("restartButton");
 
-        <section class="hero">
+            const message =
+                document.getElementById("message");
 
-            <div class="badge">
-                <span class="badge-dot"></span>
-                SERVEUR MINECRAFT
-            </div>
+            openButton.disabled = true;
+            restartButton.disabled = true;
 
-            <h1>
-                Bienvenue sur
-                <strong>KiyoraSMP</strong>
-            </h1>
+            if (action === "start") {
+                message.textContent =
+                    "Ouverture du serveur...";
+            } else {
+                message.textContent =
+                    "Redémarrage du serveur...";
+            }
 
-            <p>
-                Un SMP chill, français et sans prise de tête.
-                Rejoins-nous et construis ton aventure.
-            </p>
+            try {
 
-        </section>
+                const response =
+                    await fetch(API + "/power", {
+                        method: "POST",
 
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-        <section class="server-card">
+                        body: JSON.stringify({
+                            action: action
+                        })
+                    });
 
-            <div class="server-top">
+                const data =
+                    await response.json();
 
-                <div>
-                    <div class="section-label">
-                        STATUT DU SERVEUR
-                    </div>
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.error || "Erreur"
+                    );
+                }
 
-                    <div
-                        id="status"
-                        class="status offline"
-                    >
-                        <span class="status-dot"></span>
-                        Connexion...
-                    </div>
-                </div>
+                if (action === "start") {
 
-                <div class="version">
-                    <span></span>
-                    Minecraft 1.21.10
-                </div>
+                    message.textContent =
+                        "✅ Serveur ouvert !";
 
-            </div>
+                } else {
 
+                    message.textContent =
+                        "✅ Serveur redémarré !";
 
-            <div class="separator"></div>
+                }
 
+            } catch (error) {
 
-            <div class="info-grid">
+                message.textContent =
+                    "❌ " + error.message;
 
-                <div class="info-box">
+            } finally {
 
-                    <div class="info-icon">
-                        👥
-                    </div>
-
-                    <div>
-                        <div class="info-label">
-                            JOUEURS
-                        </div>
-
-                        <div
-                            id="players"
-                            class="info-value"
-                        >
-                            -- / --
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="info-box">
-
-                    <div class="info-icon">
-                        🌐
-                    </div>
-
-                    <div class="address-content">
-
-                        <div class="info-label">
-                            ADRESSE DU SERVEUR
-                        </div>
-
-                        <div class="address-row">
-
-                            <div class="info-value">
-                                kiyorasmp.minecraft.how
-                            </div>
-
-                            <button
-                                class="copy-button"
-                                onclick="copyIP()"
-                                title="Copier l'adresse"
-                            >
-                                ⧉
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="actions">
-
-                <button
-                    id="powerButton"
-                    class="power-button start"
-                    onclick="toggleServer()"
-                >
-
-                    <span id="powerIcon">
-                        ▶
-                    </span>
-
-                    <span id="powerText">
-                        DÉMARRER LE SERVEUR
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="restart-button"
-                    onclick="restartServer()"
-                >
-                    ↻ REDÉMARRER
-                </button>
-
-            </div>
-
-
-            <div
-                id="message"
-                class="message"
-            ></div>
-
-        </section>
-
-
-        <section class="features">
-
-            <div class="feature">
-
-                <div class="feature-icon">
-                    ⚔
-                </div>
-
-                <div>
-                    <strong>SURVIE</strong>
-                    <span>Construis ton aventure</span>
-                </div>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="feature-icon">
-                    ⚡
-                </div>
-
-                <div>
-                    <strong>CHILL</strong>
-                    <span>Pas de prise de tête</span>
-                </div>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="feature-icon">
-                    ◆
-                </div>
-
-                <div>
-                    <strong>COMMUNAUTÉ</strong>
-                    <span>Rejoins les joueurs</span>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <div
-            id="toast"
-            class="toast"
-        >
-            ✓ Adresse copiée !
-        </div>
-
-    </main>
-
-
-    <footer class="footer">
-
-        <span>
-            © 2026 KalwaOG
-        </span>
-
-        <a
-            href="https://discord.gg/aSa3gxAUys"
-            target="_blank"
-        >
-            Discord
-        </a>
-
-    </footer>
-
-
-    <script src="script.js"></script>
+                openButton.disabled = false;
+                restartButton.disabled = false;
+            }
+        }
+    </script>
 
 </body>
 </html>
